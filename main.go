@@ -1,8 +1,14 @@
 package main
 
 import (
-	"github.com/aryaw/gin-blog/config"
+	"fmt"
+	"log"
+	"os"
+
+	"gin-blog/module/authcms"
+	"gin-blog/config"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -17,8 +23,15 @@ func main() {
 	}
 
 	r := gin.Default()
+	router.Register(authcms.Routes)
 
 	// database
 	DB := config.Init()
-    h := config.New(DB)
+    config.New(DB)
+
+	// start go on ev.port
+	port := os.Getenv("PORT")
+	log.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
+	fmt.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
+	r.Run(":" + port)
 }

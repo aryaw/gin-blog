@@ -23,8 +23,7 @@ func Init() *gorm.DB {
 	var dbPASSWORD = os.Getenv("DB_PASSWORD")
 	var dbNAME = os.Getenv("DB_NAME")
 
-
-	dbConnection := dbUSER":"+dbPASSWORD+"@tcp("+dbHOST+":"+dbPORT+")/"+dbNAME+"?charset=utf8mb4&parseTime=True&loc=Local"
+	dbConnection := dbUSER+":"+dbPASSWORD+"@tcp("+dbHOST+":"+dbPORT+")/"+dbNAME+"?charset=utf8mb4&parseTime=True&loc=Local"
   	db, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
 
 	if err != nil {
