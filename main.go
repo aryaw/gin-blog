@@ -23,7 +23,9 @@ func main() {
 	}
 
 	r := gin.Default()
-	router.Register(authcms.Routes)
+	
+	// register routes
+	authcms.Routes(r)
 
 	// database
 	DB := config.Init()
@@ -34,4 +36,5 @@ func main() {
 	log.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
 	fmt.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
 	r.Run(":" + port)
+	r.Routes()
 }
