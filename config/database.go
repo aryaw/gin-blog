@@ -8,6 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	DBCon *gorm.DB
+)
+
+
 type DbHandler struct {
 	DB *gorm.DB
 }
@@ -24,11 +29,15 @@ func Init() *gorm.DB {
 	var dbNAME = os.Getenv("DB_NAME")
 
 	dbConnection := dbUSER+":"+dbPASSWORD+"@tcp("+dbHOST+":"+dbPORT+")/"+dbNAME+"?charset=utf8mb4&parseTime=True&loc=Local"
-  	db, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
+	DB, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	return db
+	return DB
+}
+
+func GetDB() *gorm.DB {
+	return DBCon
 }

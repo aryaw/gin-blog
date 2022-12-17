@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 
-	"gin-blog/module/authcms"
 	"gin-blog/config"
+	// "gin-blog/middleware"
+	"gin-blog/module/authcms"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -23,6 +24,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	// r.Use(middleware.CORSMiddleware())
 	
 	// register routes
 	authcms.Routes(r)
@@ -30,6 +32,7 @@ func main() {
 	// database
 	DB := config.Init()
     config.New(DB)
+	authcms.Migrate(DB)
 
 	// start go on ev.port
 	port := os.Getenv("PORT")
