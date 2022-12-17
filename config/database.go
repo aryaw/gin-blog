@@ -21,7 +21,7 @@ func New(db *gorm.DB) DbHandler {
 	return DbHandler{db}
 }
 
-func Init() *gorm.DB {
+func Init() *.DB {
 	var dbHOST = os.Getenv("DB_HOST")
 	var dbPORT = os.Getenv("DB_PORT")
 	var dbUSER = os.Getenv("DB_USER")
