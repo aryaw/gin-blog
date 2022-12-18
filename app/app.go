@@ -33,11 +33,12 @@ func Run() {
 	DB := config.Init()
     config.New(DB)
 	
+	modules := ReadModules("./app")
+	fmt.Println(modules)
 
-	ReadPackage("")
-	
 	// module routes
 	authcms.Routes(r)
+
 	// module migration
 	authcms.Migrate(DB)
 
@@ -49,30 +50,27 @@ func Run() {
 	r.Routes()
 }
 
-func ReadPackage(dir string) {
-	// read the package
+var Modules []string
+
+func ReadModules(dir string) []string {
+	// read the module
 	appDir := "./app"
 	var modulePath string
-
-	if dir == "" {
-		dir = appDir
-	}
 
 	f, err := os.Open(dir)
     if err != nil {
         fmt.Println(err)
-        return
     }
     files, err := f.Readdir(0)
     if err != nil {
         fmt.Println(err)
-        return
     }
 
-    for _, v := range files {
+	for _, v := range files {
 		if (v.IsDir()) {
+			Modules = append(Modules, v.Name())
 			dir = appDir+"/"+v.Name()
-			ReadPackage(dir)
+			ReadModules(dir)
 		}
 
 		extension := filepath.Ext(v.Name())
@@ -81,9 +79,11 @@ func ReadPackage(dir string) {
 			GetPackageInfo(modulePath)
 		}
     }
+
+	return Modules
 }
 
-type Module struct {
+type ModuleInfo struct {
     Name   string `json:"name"`
     Title   string `json:"title"`
     Version   string `json:"version"`
@@ -99,7 +99,7 @@ func GetPackageInfo(path string) {
     }
 
 	byteValue, _ := io.ReadAll(jsonFile)
-	var module Module
-	json.Unmarshal(byteValue, &module)
-	fmt.Println(module.Name)
+	var moduleinfo ModuleInfo
+	json.Unmarshal(byteValue, &moduleinfo)
+	// fmt.Println(moduleinfo.Name)
 }
