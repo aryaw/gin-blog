@@ -40,4 +40,4 @@ func Init() *gorm.DB {
 
 func GetDB() *gorm.DB {
 	return DBCon
-}
+} 
