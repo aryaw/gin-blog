@@ -11,6 +11,7 @@ import (
 	"gin-blog/config"
 	// "gin-blog/middleware"
 	"gin-blog/app/authcms"
+	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -36,11 +37,7 @@ func Run() {
 	modules := ReadModules("./app")
 	fmt.Println(modules)
 
-	// module routes
-	authcms.Routes(r)
-
-	// module migration
-	authcms.Migrate(DB)
+	InitModule(r, DB)
 
 	// start go on ev.port
 	port := os.Getenv("PORT")
@@ -50,8 +47,15 @@ func Run() {
 	r.Routes()
 }
 
-var Modules []string
+func InitModule(r *gin.Engine, DB *gorm.DB) {
+	// module routes
+	authcms.Routes(r)
 
+	// module migration
+	authcms.Migrate(DB)
+}
+
+var Modules []string
 func ReadModules(dir string) []string {
 	// read the module
 	appDir := "./app"
@@ -91,7 +95,6 @@ type ModuleInfo struct {
     Author   string `json:"author"`
     Email   string `json:"email"`
 }
-
 func GetPackageInfo(path string) {
 	jsonFile, err := os.Open(path)
     if err != nil {
