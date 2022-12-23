@@ -34,11 +34,16 @@ type RoleModel struct {
 	DeletedAt     gorm.DeletedAt
 }
 
-type AuthenticationInput struct {
+type RegisterInput struct {
     Email string `json:"email" binding:"required,email,min=3"`
     FirstName string `json:"firstname" binding:"required,min=3"`
     LastName string `json:"lastname" binding:"required,min=3"`
     Password string `json:"password" binding:"required,min=6,mustalphanum"`
+}
+
+type AuthenticationInput struct {
+	Email string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
 
 func Migrate(db *gorm.DB) {
@@ -53,6 +58,7 @@ func Migrate(db *gorm.DB) {
 func (usermodel *UserModel) Save() (*UserModel, error) {
 	DB := config.Init()
     err := DB.Create(&usermodel).Error
+
     if err != nil {
         return &UserModel{}, err
     }
@@ -69,4 +75,32 @@ func (usermodel *UserModel) BeforeSave(*gorm.DB) error {
     usermodel.LastName = html.EscapeString(strings.TrimSpace(usermodel.LastName))
     usermodel.Email = html.EscapeString(strings.TrimSpace(usermodel.Email))
     return nil
+}
+
+func (usermodel *UserModel) ValidatePassword(password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(usermodel.Password), []byte(password))
+}
+
+func FindUserByEmail(email string) (UserModel, error) {
+	var usermodel UserModel
+
+	DB := config.Init()
+    err := DB.Where("email=?", email).Find(&usermodel).Error
+
+	if err != nil {
+		return UserModel{}, err
+	}
+	return usermodel, nil
+}
+
+func FindUserById(id uint) (UserModel, error) {
+	var usermodel UserModel
+
+	DB := config.Init()
+	err := DB.Preload("Entries").Where("ID=?", id).Find(&usermodel).Error
+
+	if err != nil {
+		return UserModel{}, err
+	}
+	return usermodel, nil
 }

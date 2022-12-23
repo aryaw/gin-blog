@@ -17,7 +17,7 @@ func RenderLogin(c *gin.Context) {
 }
 
 func PostRegister(context *gin.Context) {
-    var input AuthenticationInput
+    var input RegisterInput
 
     if err := context.ShouldBindJSON(&input); err != nil {
         context.JSON(http.StatusBadRequest, gin.H{"error request": err.Error()})
@@ -40,3 +40,34 @@ func PostRegister(context *gin.Context) {
 
     context.JSON(http.StatusCreated, gin.H{"user": savedUser})
 }
+
+func PostLogin(context *gin.Context) {
+	var input AuthenticationInput
+
+	if err := context.ShouldBindJSON(&input); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	usermodel, err := FindUserByEmail(input.Email)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = usermodel.ValidatePassword(input.Password)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jwt, err := GenerateJWT(usermodel)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"jwt": jwt})
+} 

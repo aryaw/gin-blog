@@ -48,7 +48,7 @@ func Run() {
 
 	InitModule(r, DB)
 
-	// start go on ev.port
+	// start go on env.port
 	port := os.Getenv("PORT")
 	log.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
 	fmt.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
