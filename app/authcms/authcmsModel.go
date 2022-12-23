@@ -5,7 +5,6 @@ import(
 	"time"
 	"html"
 	"strings"
-	"fmt"
 	
 	"gin-blog/config"
 	"gorm.io/gorm"
@@ -39,7 +38,7 @@ type AuthenticationInput struct {
     Email string `json:"email" binding:"required,email,min=3"`
     FirstName string `json:"firstname" binding:"required,min=3"`
     LastName string `json:"lastname" binding:"required,min=3"`
-    Password string `json:"password" binding:"required,min=6,alphanum"`
+    Password string `json:"password" binding:"required,min=6,mustalphanum"`
 }
 
 func Migrate(db *gorm.DB) {
@@ -53,7 +52,6 @@ func Migrate(db *gorm.DB) {
 
 func (usermodel *UserModel) Save() (*UserModel, error) {
 	DB := config.Init()
-	fmt.Println(DB)
     err := DB.Create(&usermodel).Error
     if err != nil {
         return &UserModel{}, err

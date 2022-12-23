@@ -10,9 +10,12 @@ import (
 
 	"gin-blog/config"
 	// "gin-blog/middleware"
+	"gin-blog/form"
 	"gin-blog/app/authcms"
 	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 )
 
@@ -29,6 +32,12 @@ func Run() {
 
 	r := gin.Default()
 	// r.Use(middleware.CORSMiddleware())
+
+	// register custom validator
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("mustalphanum", form.MustAlphaNum)
+	}
+
 
 	// database
 	DB := config.Init()
