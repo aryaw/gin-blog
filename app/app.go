@@ -7,17 +7,27 @@ import (
 	"io"
 	"path/filepath"
 	"encoding/json"
+	"net/http"
 
 	"gin-blog/config"
 	// "gin-blog/middleware"
 	"gin-blog/form"
 	"gin-blog/app/authcms"
+	"gin-blog/app/blog"
+	// "gin-blog/app/discovery"
 	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 )
+
+type RouteItem struct {
+	HttpMethod string
+	AbsolutePath string
+	HandlerName string
+}
+var ListAvailRoutes []RouteItem
 
 func Run() {
 	//Load the .env file
@@ -31,13 +41,11 @@ func Run() {
 	}
 
 	r := gin.Default()
-	// r.Use(middleware.CORSMiddleware())
 
 	// register custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("mustalphanum", form.MustAlphaNum)
 	}
-
 
 	// database
 	DB := config.Init()
@@ -51,17 +59,43 @@ func Run() {
 	// start go on env.port
 	port := os.Getenv("PORT")
 	log.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
-	fmt.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
+	
+	
+	// list all endpoint
+	routesList := r.Routes()
+	for _, rtLst := range routesList {
+		rtItem := RouteItem {
+			HttpMethod: rtLst.Method,
+			AbsolutePath: rtLst.Path,
+			HandlerName: rtLst.Handler,
+		}
+		ListAvailRoutes = append(ListAvailRoutes, rtItem)
+	}
+
+	endPointList := r.Group("/v1")
+    endPointList.GET("/endpoint", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"endpoint": ListAvailRoutes,
+		})
+	 })
+
+	fmt.Println("====================================================")
+	fmt.Println("")
+	fmt.Println("====================================================")
 	r.Run(":" + port)
-	r.Routes()
 }
+
+
 
 func InitModule(r *gin.Engine, DB *gorm.DB) {
 	// module routes
 	authcms.Routes(r)
+	blog.Routes(r)
+	// discovery.Routes(r)
 
 	// module migration
 	authcms.Migrate(DB)
+	blog.Migrate(DB)
 }
 
 var Modules []string
