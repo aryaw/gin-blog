@@ -10,11 +10,13 @@ import (
 	"net/http"
 
 	"gin-blog/config"
-	// "gin-blog/middleware"
+	"gin-blog/middleware"
 	"gin-blog/form"
+
+	// module
 	"gin-blog/app/authcms"
 	"gin-blog/app/blog"
-	// "gin-blog/app/discovery"
+	
 	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -25,7 +27,7 @@ import (
 type RouteItem struct {
 	HttpMethod string
 	AbsolutePath string
-	HandlerName string
+	// HandlerName string
 }
 var ListAvailRoutes []RouteItem
 
@@ -67,7 +69,7 @@ func Run() {
 		rtItem := RouteItem {
 			HttpMethod: rtLst.Method,
 			AbsolutePath: rtLst.Path,
-			HandlerName: rtLst.Handler,
+			// HandlerName: rtLst.Handler,
 		}
 		ListAvailRoutes = append(ListAvailRoutes, rtItem)
 	}
@@ -77,7 +79,10 @@ func Run() {
 		c.JSON(http.StatusOK, gin.H{
 			"endpoint": ListAvailRoutes,
 		})
-	 })
+	})
+
+	// register middleware
+	r.Use(middleware.BodySizeMiddleware())
 
 	fmt.Println("====================================================")
 	fmt.Println("")

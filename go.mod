@@ -3,10 +3,11 @@ module gin-blog
 go 1.19
 
 require (
-	github.com/gin-contrib/cors v1.4.0
+	github.com/gabriel-vasile/mimetype v1.4.1
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	golang.org/x/crypto v0.4.0
 	gorm.io/driver/mysql v1.4.4

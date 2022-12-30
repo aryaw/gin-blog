@@ -29,6 +29,7 @@ type RoleModel struct {
 	ID            uint64 `gorm:"not null;primary_key"`
 	Name     	  string `gorm:"size:255;not null"`
 	Slug          string `gorm:"size:255;not null;uniqueIndex"`
+	PriviledgeList          string `gorm:"type:text;"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt
