@@ -83,6 +83,7 @@ func Run() {
 
 	// register middleware
 	r.Use(middleware.BodySizeMiddleware())
+	r.Use(middleware.JWTAuthMiddleware())
 
 	fmt.Println("====================================================")
 	fmt.Println("")

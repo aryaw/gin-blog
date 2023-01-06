@@ -8,7 +8,7 @@ import (
 
 func Routes(r *gin.Engine) {
 	v1 := r.Group("/v1")
-	// v1.Use(middleware.JWTAuthMiddleware())
+	v1.Use(middleware.JWTAuthMiddleware())
 	v1.GET("/blog/hello", RenderBlogHello)
 	v1.POST("/blog/create", SaveBlog)
 }
