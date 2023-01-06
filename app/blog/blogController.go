@@ -1,7 +1,7 @@
 package blog
 
 import (
-	// "fmt"
+	"fmt"
 	// "io"
 	"os"
 	"net/http"
@@ -18,15 +18,20 @@ func RenderBlogHello(c *gin.Context) {
 
 func SaveBlog(c *gin.Context) {
 	// body, _ := io.ReadAll(c.Request.Body)
-    // println(string(body))
-
+    // fmt.Println(string(body))
+	// fmt.Println("==================================")	
+	
 	var input ValidateBlogInput
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error validate": err.Error()})
+	err := c.Bind(&input);
+	// err := c.ShouldBind(&input);
+	fmt.Println("==================================")
+	fmt.Println(err)
+	fmt.Println("==================================")
+    if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error data validation": err.Error()})
         return
     }
 
-	// file, err := c.FormFile("featuredimage")
 	file, fl, err := c.Request.FormFile("featuredimage")
 	if err != nil {
         c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -60,11 +65,13 @@ func SaveBlog(c *gin.Context) {
 		})
 		return
 	}
+	
     
     blog := ModelBlog {
         Title: input.Title,
 		Author: input.Author,
 		Content: input.Content,
+		Slug: input.Slug,
 		FeaturedImage: newpath+"/" + newFileName,
     }
     

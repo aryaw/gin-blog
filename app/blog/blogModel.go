@@ -3,7 +3,7 @@ package blog
 import(
 	"log"
 	"time"
-	// "mime/multipart"
+	"mime/multipart"
 	
 	"gin-blog/config"
 	"gorm.io/gorm"
@@ -33,11 +33,17 @@ type ModelBlogCategory struct {
 }
 
 type ValidateBlogInput struct {
-    Title string `json:"title" binding:"required,min=5"`
-    Slug string `json:"slug" binding:"required,min=5"`
-    Content string `json:"content" binding:"required,min=5"`
-    Author string `json:"author" binding:"required"`
-    // FeaturedImage multipart.File `json:"featuredimage" binding:"required"`
+    // Title string `json:"title" binding:"required"`
+    // Slug string `json:"slug" binding:"required"`
+    // Content string `json:"content" binding:"required"`
+    // Author string `json:"author" binding:"required"`
+    
+	Title string `form:"title" binding:"-"`
+    Slug string `form:"slug" binding:"-"`
+    Content string `form:"content" binding:"-"`
+    Author string `form:"author" binding:"-"`
+    
+	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
 }
 
 func Migrate(db *gorm.DB) {
