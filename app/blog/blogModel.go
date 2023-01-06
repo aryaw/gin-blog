@@ -4,6 +4,7 @@ import(
 	"log"
 	"time"
 	"mime/multipart"
+	// "fmt"
 	
 	"gin-blog/config"
 	"gorm.io/gorm"
@@ -38,10 +39,10 @@ type ValidateBlogInput struct {
     // Content string `json:"content" binding:"required"`
     // Author string `json:"author" binding:"required"`
     
-	Title string `form:"title" binding:"-"`
-    Slug string `form:"slug" binding:"-"`
-    Content string `form:"content" binding:"-"`
-    Author string `form:"author" binding:"-"`
+	Title string `form:"title" binding:"required,min=5"`
+    // Slug string `form:"slug" binding:"required,min=5,lowercase"`
+    Content string `form:"content" binding:"required,min=5"`
+    Author string `form:"author" binding:"required,min=5"`
     
 	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
 }
@@ -69,23 +70,13 @@ func (blogmodel *ModelBlog) CreateBlog() (*ModelBlog, error) {
     return blogmodel, nil
 }
 
-// func (blogmodel *ModelBlog) FindBlogs() (*ModelBlog, error) {
-// 	var blogs []ModelBlog
-// 	DB := config.Init()
-//     blogs, err := DB.Find(&blogs)
-// 	if err != nil {
-// 		return err
-// 	}
+func FindBlogById(id uint64) (ModelBlog, error) {
+	var blogmodel ModelBlog
 
-// 	return blogs
-// }
-
-// func (blogmodel *ModelBlog) FindBlog(id int) (*ModelBlog, error) {
-// 	var blog ModelBlog
-// 	DB := config.Init()
-// 	if err := DB.Where("id = ?", id).First(&blog).Error; err != nil {
-// 		return nil
-// 	}
-
-// 	return blog
-// }
+	DB := config.Init()
+	err := DB.Where("id=?", id).First(&blogmodel).Error
+	if err != nil {
+		return ModelBlog{}, err
+	}
+	return blogmodel, nil
+}

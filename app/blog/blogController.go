@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gabriel-vasile/mimetype"
 	"gin-blog/config"
+	"github.com/gosimple/slug"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,7 @@ func RenderBlogHello(c *gin.Context) {
 func CreateBlog(c *gin.Context) {
 	// body, _ := io.ReadAll(c.Request.Body)
     // fmt.Println(string(body))
-	// fmt.Println("==================================")	
+	// fmt.Println("==================================")
 	
 	var input ValidateBlogInput
 	err := c.Bind(&input);
@@ -65,12 +66,12 @@ func CreateBlog(c *gin.Context) {
 		return
 	}
 	
-    
+    slugTitle := slug.Make(input.Title)
     blog := ModelBlog {
         Title: input.Title,
 		Author: input.Author,
 		Content: input.Content,
-		Slug: input.Slug,
+		Slug: slugTitle,
 		FeaturedImage: newpath+"/" + newFileName,
     }
     
@@ -133,9 +134,10 @@ func UpdateBlog(c *gin.Context) {
 		return
 	}
 
+	slugTitle := slug.Make(input.Title)
 	var updatedInput ModelBlog
     updatedInput.Title = input.Title
-    updatedInput.Slug = input.Slug
+    updatedInput.Slug = slugTitle
     updatedInput.Author = input.Author
     updatedInput.Content = input.Content
     updatedInput.FeaturedImage = newpath+"/" + newFileName

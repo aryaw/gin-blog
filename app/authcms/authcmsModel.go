@@ -98,7 +98,7 @@ func FindUserById(id uint) (UserModel, error) {
 	var usermodel UserModel
 
 	DB := config.Init()
-	err := DB.Preload("Entries").Where("ID=?", id).Find(&usermodel).Error
+	err := DB.Where("ID=?", id).Find(&usermodel).Error
 
 	if err != nil {
 		return UserModel{}, err
