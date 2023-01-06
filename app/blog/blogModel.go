@@ -55,7 +55,7 @@ func Migrate(db *gorm.DB) {
 	// database.DBCon.Model(&models.User{}).AddForeignKey("address_id", "address(id)", "CASCADE", "RESTRICT")
 }
 
-func (blogmodel *ModelBlog) Save() (*ModelBlog, error) {
+func (blogmodel *ModelBlog) CreateBlog() (*ModelBlog, error) {
 	DB := config.Init()
     err := DB.Create(&blogmodel).Error
 
@@ -65,3 +65,23 @@ func (blogmodel *ModelBlog) Save() (*ModelBlog, error) {
     return blogmodel, nil
 }
 
+// func (blogmodel *ModelBlog) FindBlogs() (*ModelBlog, error) {
+// 	var blogs []ModelBlog
+// 	DB := config.Init()
+//     blogs, err := DB.Find(&blogs)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return blogs
+// }
+
+// func (blogmodel *ModelBlog) FindBlog(id int) (*ModelBlog, error) {
+// 	var blog ModelBlog
+// 	DB := config.Init()
+// 	if err := DB.Where("id = ?", id).First(&blog).Error; err != nil {
+// 		return nil
+// 	}
+
+// 	return blog
+// }
