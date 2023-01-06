@@ -12,4 +12,5 @@ func Routes(r *gin.Engine) {
 	v1.GET("/blog/hello", RenderBlogHello)
 	v1.POST("/blog/create", CreateBlog)
 	v1.POST("/blog/update/:id", UpdateBlog)
+	v1.POST("/blog/delete/:id", DeleteBlog)
 }

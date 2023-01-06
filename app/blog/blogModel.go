@@ -46,6 +46,10 @@ type ValidateBlogInput struct {
 	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
 }
 
+type ValidateBlogDelete struct {
+	ID int `form:"id" binding:"required"`
+}
+
 func Migrate(db *gorm.DB) {
 	err := db.Debug().AutoMigrate(&ModelBlog{}, &ModelBlog{})
 	if err != nil {

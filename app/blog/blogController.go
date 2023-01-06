@@ -1,9 +1,10 @@
 package blog
 
 import (
-	"fmt"
+	// "fmt"
 	// "io"
 	"os"
+	"strconv"
 	"net/http"
 	"path/filepath"
 
@@ -25,9 +26,6 @@ func CreateBlog(c *gin.Context) {
 	var input ValidateBlogInput
 	err := c.Bind(&input);
 	// err := c.ShouldBind(&input);
-	fmt.Println("==================================")
-	fmt.Println(err)
-	fmt.Println("==================================")
     if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error data validation": err.Error()})
         return
@@ -82,7 +80,7 @@ func CreateBlog(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, gin.H{"user": savedBlog})
+    c.JSON(http.StatusOK, gin.H{"user": savedBlog})
 }
 
 func UpdateBlog(c *gin.Context) {	
@@ -96,9 +94,6 @@ func UpdateBlog(c *gin.Context) {
 	var input ValidateBlogInput
 	err := c.Bind(&input);
 	// err := c.ShouldBind(&input);
-	fmt.Println("==================================")
-	fmt.Println(err)
-	fmt.Println("==================================")
     if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error data validation": err.Error()})
         return
@@ -152,7 +147,42 @@ func UpdateBlog(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, gin.H{"blog": blog})
+    c.JSON(http.StatusAccepted, gin.H{"blog": blog})
+}
+
+func DeleteBlog(c *gin.Context) {
+	var input ValidateBlogDelete
+	err := c.Bind(&input);
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error data validation": err.Error()})
+        return
+    }
+
+	var blog ModelBlog
+	DB := config.Init()
+	if err := DB.Where("id = ?", input.ID).First(&blog).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+		return
+	}
+
+	urlParam := c.Param("id")
+	intUrlParam, err := strconv.Atoi(urlParam)
+    if err != nil {
+        panic(err)
+    }
+
+	if (intUrlParam != input.ID) {
+		c.JSON(http.StatusNotAcceptable , gin.H{"error": "Delete Not Acceptable, invalid data! "})
+		return
+	}
+
+    result := DB.Where("id = ?", input.ID).Delete(&blog)
+	if result.Error != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
+        return
+    }
+
+    c.JSON(http.StatusAccepted, gin.H{"message": "succes"})
 }
 
 
