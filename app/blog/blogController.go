@@ -1,12 +1,14 @@
 package blog
 
 import (
-	// "fmt"
+	"fmt"
 	// "io"
 	"os"
 	"strconv"
 	"net/http"
 	"path/filepath"
+	// "sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gabriel-vasile/mimetype"
@@ -23,6 +25,7 @@ func CreateBlog(c *gin.Context) {
 	// body, _ := io.ReadAll(c.Request.Body)
     // fmt.Println(string(body))
 	// fmt.Println("==================================")
+	startTime := time.Now()
 	
 	var input ValidateBlogInput
 	err := c.Bind(&input);
@@ -40,6 +43,12 @@ func CreateBlog(c *gin.Context) {
         return
     }
 
+	// var wg sync.WaitGroup
+    // var mtx sync.Mutex
+
+	// wg.Add(1)
+	// mtx.Lock()
+
 	mtype, err := mimetype.DetectReader(file)
 	// fmt.Println(mtype.String(), mtype.Extension())
 	filename := fileNameWithoutExt(filepath.Base(fl.Filename))
@@ -51,6 +60,8 @@ func CreateBlog(c *gin.Context) {
 	if checkDir == nil {
 		err := os.MkdirAll(newpath, 0755)
 		if err != nil {
+			// mtx.Unlock()
+			// wg.Done()
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Can't create directory",
 			})
@@ -60,12 +71,14 @@ func CreateBlog(c *gin.Context) {
 	}
 	
 	if err := c.SaveUploadedFile(fl, newpath+"/" + newFileName); err != nil {
+		// mtx.Unlock()
+		// wg.Done()
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": "Unable to save the file",
 		})
 		return
 	}
-	
+
     slugTitle := slug.Make(input.Title)
     blog := ModelBlog {
         Title: input.Title,
@@ -76,6 +89,14 @@ func CreateBlog(c *gin.Context) {
     }
     
     savedBlog, err := blog.CreateBlog()
+	// mtx.Unlock()
+	// wg.Done()	
+	// wg.Wait()
+	finishTime := time.Since(startTime)
+
+	fmt.Println("===========================================================")
+	fmt.Println(finishTime)
+	fmt.Println("===========================================================")
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
@@ -86,7 +107,7 @@ func CreateBlog(c *gin.Context) {
 
 func UpdateBlog(c *gin.Context) {	
 	var blog ModelBlog
-	DB := config.Init()
+	DB := config.GetDB()
 	if err := DB.Where("id = ?", c.Param("id")).First(&blog).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
 		return
@@ -161,7 +182,7 @@ func DeleteBlog(c *gin.Context) {
     }
 
 	var blog ModelBlog
-	DB := config.Init()
+	DB := config.GetDB()
 	if err := DB.Where("id = ?", input.ID).First(&blog).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
 		return

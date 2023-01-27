@@ -57,7 +57,8 @@ func Migrate(db *gorm.DB) {
 }
 
 func (usermodel *UserModel) Save() (*UserModel, error) {
-	DB := config.Init()
+	// DB := config.Init()
+	DB := config.GetDB()
     err := DB.Create(&usermodel).Error
 
     if err != nil {
@@ -85,7 +86,7 @@ func (usermodel *UserModel) ValidatePassword(password string) error {
 func FindUserByEmail(email string) (UserModel, error) {
 	var usermodel UserModel
 
-	DB := config.Init()
+	DB := config.GetDB()
     err := DB.Where("email=?", email).Find(&usermodel).Error
 
 	if err != nil {
@@ -97,7 +98,7 @@ func FindUserByEmail(email string) (UserModel, error) {
 func FindUserById(id uint) (UserModel, error) {
 	var usermodel UserModel
 
-	DB := config.Init()
+	DB := config.GetDB()
 	err := DB.Where("ID=?", id).Find(&usermodel).Error
 
 	if err != nil {

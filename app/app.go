@@ -51,12 +51,11 @@ func Run() {
 
 	// database
 	DB := config.Init()
-    config.New(DB)
+	InitModule(r, DB)
 	
 	// modules := ReadModules("./app")
 	// fmt.Println(modules)
 
-	InitModule(r, DB)
 
 	// start go on env.port
 	port := os.Getenv("PORT")

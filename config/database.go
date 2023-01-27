@@ -3,20 +3,17 @@ package config
 import (
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var DBCon *gorm.DB
-
-type DbHandler struct {
-	DB *gorm.DB
+type Database struct {
+	*gorm.DB
 }
 
-func New(db *gorm.DB) DbHandler {
-	return DbHandler{db}
-}
+var DB *gorm.DB
 
 func Init() *gorm.DB {
 	var dbHOST = os.Getenv("DB_HOST")
@@ -26,11 +23,22 @@ func Init() *gorm.DB {
 	var dbNAME = os.Getenv("DB_NAME")
 
 	dbConnection := dbUSER+":"+dbPASSWORD+"@tcp("+dbHOST+":"+dbPORT+")/"+dbNAME+"?charset=utf8mb4&parseTime=True&loc=Local"
-	DBCon, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	return DBCon
+	Database, err := db.DB()
+	Database.SetMaxIdleConns(10)
+	Database.SetMaxOpenConns(100)
+	Database.SetConnMaxLifetime(time.Hour)
+	// DB = Database
+	DB = db
+
+	return DB
+}
+
+func GetDB() *gorm.DB {
+	return DB
 }

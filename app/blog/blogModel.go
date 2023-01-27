@@ -61,7 +61,7 @@ func Migrate(db *gorm.DB) {
 }
 
 func (blogmodel *ModelBlog) CreateBlog() (*ModelBlog, error) {
-	DB := config.Init()
+	DB := config.GetDB()
     err := DB.Create(&blogmodel).Error
 
     if err != nil {
@@ -73,7 +73,7 @@ func (blogmodel *ModelBlog) CreateBlog() (*ModelBlog, error) {
 func FindBlogById(id uint64) (ModelBlog, error) {
 	var blogmodel ModelBlog
 
-	DB := config.Init()
+	DB := config.GetDB()
 	err := DB.Where("id=?", id).First(&blogmodel).Error
 	if err != nil {
 		return ModelBlog{}, err
