@@ -4,7 +4,7 @@ import(
 	"log"
 	"time"
 	"mime/multipart"
-	// "fmt"
+	"fmt"
 	
 	"gin-blog/config"
 	"gorm.io/gorm"
@@ -40,7 +40,7 @@ type ValidateBlogInput struct {
     // Author string `json:"author" binding:"required"`
     
 	Title string `form:"title" binding:"required,min=5"`
-    // Slug string `form:"slug" binding:"required,min=5,lowercase"`
+    Slug string `form:"slug" binding:"required,min=5,lowercase"`
     Content string `form:"content" binding:"required,min=5"`
     Author string `form:"author" binding:"required,min=5"`
     
@@ -60,23 +60,25 @@ func Migrate(db *gorm.DB) {
 	// database.DBCon.Model(&models.User{}).AddForeignKey("address_id", "address(id)", "CASCADE", "RESTRICT")
 }
 
-func (blogmodel *ModelBlog) CreateBlog() (*ModelBlog, error) {
+func (modelblog *ModelBlog) CreateBlog() (*ModelBlog, error) {
 	DB := config.GetDB()
-    err := DB.Create(&blogmodel).Error
+    err := DB.Create(&modelblog).Error
 
     if err != nil {
         return &ModelBlog{}, err
     }
-    return blogmodel, nil
+    return modelblog, nil
 }
 
-func FindBlogById(id uint64) (ModelBlog, error) {
-	var blogmodel ModelBlog
-
+func FindOneBlog(condition interface{}) (ModelBlog, error) {
 	DB := config.GetDB()
-	err := DB.Where("id=?", id).First(&blogmodel).Error
-	if err != nil {
-		return ModelBlog{}, err
-	}
-	return blogmodel, nil
+	var modelblog ModelBlog
+	err := DB.Where(condition).First(&modelblog).Error
+	return modelblog, err
+}
+
+func (modelblog *ModelBlog) UpdateBlog(data interface{}) (error) {
+	DB := config.GetDB()
+	err := DB.Model(&modelblog).Updates(data).Error
+	return err	
 }

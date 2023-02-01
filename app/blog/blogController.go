@@ -17,6 +17,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var err error
+
 func RenderBlogHello(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "render Blog Hello"})
 }
@@ -106,16 +108,27 @@ func CreateBlog(c *gin.Context) {
 }
 
 func UpdateBlog(c *gin.Context) {	
-	var blog ModelBlog
-	DB := config.GetDB()
-	if err := DB.Where("id = ?", c.Param("id")).First(&blog).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+	// var blog ModelBlog
+	// DB := config.GetDB()
+	// if err := DB.Where("id = ?", c.Param("id")).First(&blog).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+	// 	return
+	// }
+
+	urlParam := c.Param("id")
+	intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
+    if err != nil {
+        panic(err)
+    }
+
+	modelBlog, err := FindOneBlog(&ModelBlog{ID: intUrlParam})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
 		return
-	}	
+	}
 	
 	var input ValidateBlogInput
-	err := c.Bind(&input);
-	// err := c.ShouldBind(&input);
+	err = c.Bind(&input)
     if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error data validation": err.Error()})
         return
@@ -162,15 +175,13 @@ func UpdateBlog(c *gin.Context) {
     updatedInput.Author = input.Author
     updatedInput.Content = input.Content
     updatedInput.FeaturedImage = newpath+"/" + newFileName
+	err = modelBlog.UpdateBlog(updatedInput)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err})
+		return
+	}
 
-    // DB.Model(&blog).Updates(updatedInput)
-    result := DB.Model(&blog).Where("id = ?", c.Param("id")).Updates(updatedInput)
-	if result.Error != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
-        return
-    }
-
-    c.JSON(http.StatusAccepted, gin.H{"blog": blog})
+    c.JSON(http.StatusAccepted, gin.H{"blog": modelBlog})
 }
 
 func DeleteBlog(c *gin.Context) {
