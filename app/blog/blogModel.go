@@ -10,6 +10,7 @@ import(
 	"gorm.io/gorm"
 )
 
+// blog
 type ModelBlog struct {
 	gorm.Model
 	ID            uint64 `gorm:"not null;primary_key"`
@@ -18,16 +19,6 @@ type ModelBlog struct {
 	Author        string `gorm:"size:255;not null"`
 	Content       string `gorm:"type:text;"`
 	FeaturedImage string `gorm:"type:text;"`
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	DeletedAt     gorm.DeletedAt
-}
-
-type ModelBlogCategory struct {
-	gorm.Model
-	ID            uint64 `gorm:"not null;primary_key"`
-	Name     	  string `gorm:"size:255;not null"`
-	Slug          string `gorm:"size:255;not null;uniqueIndex"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt
@@ -80,5 +71,52 @@ func FindOneBlog(condition interface{}) (ModelBlog, error) {
 func (modelblog *ModelBlog) UpdateBlog(data interface{}) (error) {
 	DB := config.GetDB()
 	err := DB.Model(&modelblog).Updates(data).Error
+	return err	
+}
+
+// blog category
+type ModelBlogCategory struct {
+	gorm.Model
+	ID            uint64 `gorm:"not null;primary_key"`
+	Name     	  string `gorm:"size:255;not null"`
+	Slug          string `gorm:"size:255;not null;uniqueIndex"`
+	FeaturedImage string `gorm:"type:text;"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt
+}
+
+type ValidateBlogCategoryInput struct {
+	Name string `form:"title" binding:"required,min=5"`
+    Slug string `form:"slug" binding:"required,min=5,lowercase"`
+    
+	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
+}
+
+type ValidateBlogCategoryDelete struct {
+	ID int `form:"id" binding:"required"`
+}
+
+
+func (modelblogcategory *ModelBlogCategory) CreateBlogCategory() (*ModelBlogCategory, error) {
+	DB := config.GetDB()
+    err := DB.Create(&modelblogcategory).Error
+
+    if err != nil {
+        return &ModelBlogCategory{}, err
+    }
+    return modelblogcategory, nil
+}
+
+func FindOneBlogCategory(condition interface{}) (ModelBlogCategory, error) {
+	DB := config.GetDB()
+	var modelblogcategory ModelBlogCategory
+	err := DB.Where(condition).First(&modelblogcategory).Error
+	return modelblogcategory, err
+}
+
+func (modelblogcategory *ModelBlogCategory) UpdateBlogCategory(data interface{}) (error) {
+	DB := config.GetDB()
+	err := DB.Model(&modelblogcategory).Updates(data).Error
 	return err	
 }
