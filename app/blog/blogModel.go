@@ -1,12 +1,14 @@
 package blog
 
-import(
+import (
 	"log"
-	"time"
 	"mime/multipart"
-	"fmt"
-	
+	"time"
+
+	// "fmt"
+
 	"gin-blog/config"
+
 	"gorm.io/gorm"
 )
 
@@ -14,8 +16,8 @@ import(
 type ModelBlog struct {
 	gorm.Model
 	ID            uint64 `gorm:"not null;primary_key"`
-	Title		  string `gorm:"size:255;not null"`
-	Slug	      string `gorm:"size:255;not null;uniqueIndex"`
+	Title         string `gorm:"size:255;not null"`
+	Slug          string `gorm:"size:255;not null;uniqueIndex"`
 	Author        string `gorm:"size:255;not null"`
 	Content       string `gorm:"type:text;"`
 	FeaturedImage string `gorm:"type:text;"`
@@ -25,16 +27,16 @@ type ModelBlog struct {
 }
 
 type ValidateBlogInput struct {
-    // Title string `json:"title" binding:"required"`
-    // Slug string `json:"slug" binding:"required"`
-    // Content string `json:"content" binding:"required"`
-    // Author string `json:"author" binding:"required"`
-    
-	Title string `form:"title" binding:"required,min=5"`
-    Slug string `form:"slug" binding:"required,min=5,lowercase"`
-    Content string `form:"content" binding:"required,min=5"`
-    Author string `form:"author" binding:"required,min=5"`
-    
+	// Title string `json:"title" binding:"required"`
+	// Slug string `json:"slug" binding:"required"`
+	// Content string `json:"content" binding:"required"`
+	// Author string `json:"author" binding:"required"`
+
+	Title   string `form:"title" binding:"required,min=5"`
+	Slug    string `form:"slug" binding:"required,min=5,lowercase"`
+	Content string `form:"content" binding:"required,min=5"`
+	Author  string `form:"author" binding:"required,min=5"`
+
 	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
 }
 
@@ -53,12 +55,12 @@ func Migrate(db *gorm.DB) {
 
 func (modelblog *ModelBlog) CreateBlog() (*ModelBlog, error) {
 	DB := config.GetDB()
-    err := DB.Create(&modelblog).Error
+	err := DB.Create(&modelblog).Error
 
-    if err != nil {
-        return &ModelBlog{}, err
-    }
-    return modelblog, nil
+	if err != nil {
+		return &ModelBlog{}, err
+	}
+	return modelblog, nil
 }
 
 func FindOneBlog(condition interface{}) (ModelBlog, error) {
@@ -68,17 +70,17 @@ func FindOneBlog(condition interface{}) (ModelBlog, error) {
 	return modelblog, err
 }
 
-func (modelblog *ModelBlog) UpdateBlog(data interface{}) (error) {
+func (modelblog *ModelBlog) UpdateBlog(data interface{}) error {
 	DB := config.GetDB()
 	err := DB.Model(&modelblog).Updates(data).Error
-	return err	
+	return err
 }
 
 // blog category
 type ModelBlogCategory struct {
 	gorm.Model
 	ID            uint64 `gorm:"not null;primary_key"`
-	Name     	  string `gorm:"size:255;not null"`
+	Name          string `gorm:"size:255;not null"`
 	Slug          string `gorm:"size:255;not null;uniqueIndex"`
 	FeaturedImage string `gorm:"type:text;"`
 	CreatedAt     time.Time
@@ -88,8 +90,8 @@ type ModelBlogCategory struct {
 
 type ValidateBlogCategoryInput struct {
 	Name string `form:"title" binding:"required,min=5"`
-    Slug string `form:"slug" binding:"required,min=5,lowercase"`
-    
+	Slug string `form:"slug" binding:"required,min=5,lowercase"`
+
 	FeaturedImage *multipart.FileHeader `form:"featuredimage" binding:"required"`
 }
 
@@ -97,15 +99,14 @@ type ValidateBlogCategoryDelete struct {
 	ID int `form:"id" binding:"required"`
 }
 
-
 func (modelblogcategory *ModelBlogCategory) CreateBlogCategory() (*ModelBlogCategory, error) {
 	DB := config.GetDB()
-    err := DB.Create(&modelblogcategory).Error
+	err := DB.Create(&modelblogcategory).Error
 
-    if err != nil {
-        return &ModelBlogCategory{}, err
-    }
-    return modelblogcategory, nil
+	if err != nil {
+		return &ModelBlogCategory{}, err
+	}
+	return modelblogcategory, nil
 }
 
 func FindOneBlogCategory(condition interface{}) (ModelBlogCategory, error) {
@@ -115,8 +116,8 @@ func FindOneBlogCategory(condition interface{}) (ModelBlogCategory, error) {
 	return modelblogcategory, err
 }
 
-func (modelblogcategory *ModelBlogCategory) UpdateBlogCategory(data interface{}) (error) {
+func (modelblogcategory *ModelBlogCategory) UpdateBlogCategory(data interface{}) error {
 	DB := config.GetDB()
 	err := DB.Model(&modelblogcategory).Updates(data).Error
-	return err	
+	return err
 }
