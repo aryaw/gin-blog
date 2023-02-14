@@ -1,0 +1,67 @@
+ersion: '3.9'
+services:
+  app:
+    container_name: golang_container
+    environment:
+      - DATABASE_USER=${DB_USER}
+      - DATABASE_PASSWORD=${DB_PASSWORD}
+      - DATABASE_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+      - DEV_DATABASE_USER=${DEV_DB_USER}
+      - DEV_DATABASE_PASSWORD=${DEV_DB_PASSWORD}
+      - DEV_DATABASE_DB=${DEV_DB_NAME}
+      - DEV_DATABASE_HOST=${DEV_DB_HOST}
+      - DEV_DATABASE_PORT=${DEV_DB_PORT}
+    tty: true
+    build: .
+    ports:
+      - 8000:8080
+    restart: on-failure
+    volumes:
+      - .:/app
+    depends_on:
+      - postgresdb
+    networks:
+      - learning
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  postgresdb:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      - DATABASE_USER=${DB_USER}
+      - DATABASE_PASSWORD=${DB_PASSWORD}
+      - DATABASE_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - '1234:5432'
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    networks:
+      - learning
+
+  postgresdb_dev:
+    image: postgres:latest
+    container_name: postgres_test_container
+    environment:
+      - DATABASE_USER=${DEV_DB_USER}
+      - DATABASE_PASSWORD=${DEV_DB_PASSWORD}
+      - DATABASE_DB=${DEV_DB_NAME}
+      - DATABASE_HOST=${DEV_DB_HOST}
+    ports:
+      - '4568:5432'
+    volumes:
+      - ./pg_data_test:/var/lib/postgresql/data
+    networks:
+      - learning
+
+volumes:
+  pg_data:
+  pg_data_test:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  learning:
+    driver: bridge
