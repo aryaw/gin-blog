@@ -103,12 +103,24 @@ func CreateBlogCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": savedBlogCategory})
 }
 
+func GetBlogCategory(c *gin.Context) {
+	urlParam := c.Param("id")
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
+
+	modelBlogCategory, err := FindOneBlogCategory(&ModelBlogCategory{ID: convUrlParam})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{"blogcategory": modelBlogCategory})
+}
+
 func UpdateBlogCategory(c *gin.Context) {
 	urlParam := c.Param("id")
-	// intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
-	intUrlParam := uuid.Must(uuid.Parse(urlParam))
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
 
-	modelBlogCategory, err := FindOneBlogCategory(&ModelBlogCategory{ID: intUrlParam})
+	modelBlogCategory, err := FindOneBlogCategory(&ModelBlogCategory{ID: convUrlParam})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
 		return
@@ -184,10 +196,9 @@ func DeleteBlogCategory(c *gin.Context) {
 	}
 
 	urlParam := c.Param("id")
-	// intUrlParam, err := strconv.Atoi(urlParam)
-	intUrlParam := uuid.Must(uuid.Parse(urlParam))
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
 
-	if intUrlParam != input.ID {
+	if convUrlParam != input.ID {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Delete Not Acceptable, invalid data! "})
 		return
 	}

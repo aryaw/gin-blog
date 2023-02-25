@@ -110,12 +110,24 @@ func CreateBlog(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": savedBlog})
 }
 
+func GetBlog(c *gin.Context) {
+	urlParam := c.Param("id")
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
+
+	modelBlog, err := FindOneBlog(&ModelBlog{ID: convUrlParam})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{"blog": modelBlog})
+}
+
 func UpdateBlog(c *gin.Context) {
 	urlParam := c.Param("id")
-	// intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
-	intUrlParam := uuid.Must(uuid.Parse(urlParam))
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
 
-	modelBlog, err := FindOneBlog(&ModelBlog{ID: intUrlParam})
+	modelBlog, err := FindOneBlog(&ModelBlog{ID: convUrlParam})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
 		return
@@ -194,10 +206,9 @@ func DeleteBlog(c *gin.Context) {
 	}
 
 	urlParam := c.Param("id")
-	// intUrlParam, err := strconv.Atoi(urlParam)
-	intUrlParam := uuid.Must(uuid.Parse(urlParam))
+	convUrlParam := uuid.Must(uuid.Parse(urlParam))
 
-	if intUrlParam != input.ID {
+	if convUrlParam != input.ID {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Delete Not Acceptable, invalid data! "})
 		return
 	}
