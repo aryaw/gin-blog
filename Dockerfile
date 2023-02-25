@@ -6,21 +6,21 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY . .
-COPY .env .
-
-RUN go get -d -v ./...
-
-RUN go install -v ./...
+RUN go mod download
+RUN go mod tidy
 
 # Build the Go app
-#RUN go build -o /build
-# Expose port 8080
-#EXPOSE 8080
+#RUN go build -o main .
+RUN go run .
+
+# Expose port 9000
+EXPOSE 9000
 # Run the executable
-#CMD [ "/build" ]
+# CMD [ "/main" ]
 
 #Setup hot-reload for dev environment
-RUN go get github.com/githubnemo/CompileDaemon
-RUN go get -v golang.org/x/tools/gopls
-
-ENTRYPOINT CompileDaemon --build="go build -a -installsuffix cgo -o main ." --command=./main
+RUN go install -mod=mod github.com/githubnemo/CompileDaemon
+RUN go install -mod=mod golang.org/x/tools/gopls@latest
+# ENTRYPOINT CompileDaemon --build="go build -a -installsuffix cgo -o main ." --command=./main
+#ENTRYPOINT CompileDaemon --command="go run ." --command=./main
+ENTRYPOINT ["/go/bin/CompileDaemon", ...]

@@ -3,32 +3,34 @@ package app
 import (
 	"fmt"
 	"log"
-	"os"
 	"net/http"
+	"os"
+
 	// "io"
 	// "path/filepath"
 	// "encoding/json"
 
 	"gin-blog/config"
-	"gin-blog/middleware"
 	"gin-blog/form"
+	"gin-blog/middleware"
 
 	// module
 	"gin-blog/app/authcms"
 	"gin-blog/app/blog"
-	
-	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
 
 type RouteItem struct {
-	HttpMethod string
+	HttpMethod   string
 	AbsolutePath string
 	// HandlerName string
 }
+
 var ListAvailRoutes []RouteItem
 
 func Run() {
@@ -52,21 +54,19 @@ func Run() {
 	// database
 	DB := config.Init()
 	InitModule(r, DB)
-	
+
 	// modules := ReadModules("./app")
 	// fmt.Println(modules)
-
 
 	// start go on env.port
 	port := os.Getenv("PORT")
 	log.Printf("\n\n PORT: %s \n ENV: %s \n SSL: %s \n Version: %s \n\n", port, os.Getenv("ENV"), os.Getenv("SSL"), os.Getenv("API_VERSION"))
-	
-	
+
 	// list all endpoint
 	routesList := r.Routes()
 	for _, rtLst := range routesList {
-		rtItem := RouteItem {
-			HttpMethod: rtLst.Method,
+		rtItem := RouteItem{
+			HttpMethod:   rtLst.Method,
 			AbsolutePath: rtLst.Path,
 			// HandlerName: rtLst.Handler,
 		}
@@ -74,7 +74,7 @@ func Run() {
 	}
 
 	endPointList := r.Group("/v1")
-    endPointList.GET("/endpoint", func(c *gin.Context) {
+	endPointList.GET("/endpoint", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"endpoint": ListAvailRoutes,
 		})
@@ -82,15 +82,13 @@ func Run() {
 
 	// register middleware
 	r.Use(middleware.BodySizeMiddleware())
-	r.Use(middleware.JWTAuthMiddleware())
+	// r.Use(middleware.JWTAuthMiddleware())
 
 	fmt.Println("====================================================")
 	fmt.Println("")
 	fmt.Println("====================================================")
 	r.Run(":" + port)
 }
-
-
 
 func InitModule(r *gin.Engine, DB *gorm.DB) {
 	// module routes

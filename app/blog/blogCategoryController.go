@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	// "sync"
 	"time"
@@ -78,13 +77,16 @@ func CreateBlogCategory(c *gin.Context) {
 	}
 
 	slugName := slug.Make(input.Name)
+	id := uuid.New()
+	// strID := id.String()
 	blogcategory := ModelBlogCategory{
+		ID:            id,
 		Name:          input.Name,
 		Slug:          slugName,
 		FeaturedImage: newpath + "/" + newFileName,
 	}
 
-	savedBlogCategory, err := blogcategory.CreateBlogCategory()
+	savedBlogCategory, err := blogcategory.SaveBlogCategory()
 	// mtx.Unlock()
 	// wg.Done()
 	// wg.Wait()
@@ -103,10 +105,8 @@ func CreateBlogCategory(c *gin.Context) {
 
 func UpdateBlogCategory(c *gin.Context) {
 	urlParam := c.Param("id")
-	intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
-	if err != nil {
-		panic(err)
-	}
+	// intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
+	intUrlParam := uuid.Must(uuid.Parse(urlParam))
 
 	modelBlogCategory, err := FindOneBlogCategory(&ModelBlogCategory{ID: intUrlParam})
 	if err != nil {
@@ -184,10 +184,8 @@ func DeleteBlogCategory(c *gin.Context) {
 	}
 
 	urlParam := c.Param("id")
-	intUrlParam, err := strconv.Atoi(urlParam)
-	if err != nil {
-		panic(err)
-	}
+	// intUrlParam, err := strconv.Atoi(urlParam)
+	intUrlParam := uuid.Must(uuid.Parse(urlParam))
 
 	if intUrlParam != input.ID {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Delete Not Acceptable, invalid data! "})

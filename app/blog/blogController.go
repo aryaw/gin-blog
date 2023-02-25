@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	// "sync"
 	"time"
@@ -83,7 +82,10 @@ func CreateBlog(c *gin.Context) {
 	}
 
 	slugTitle := slug.Make(input.Title)
+	id := uuid.New()
+	// strID := id.String()
 	blog := ModelBlog{
+		ID:            id,
 		Title:         input.Title,
 		Author:        input.Author,
 		Content:       input.Content,
@@ -109,18 +111,9 @@ func CreateBlog(c *gin.Context) {
 }
 
 func UpdateBlog(c *gin.Context) {
-	// var blog ModelBlog
-	// DB := config.GetDB()
-	// if err := DB.Where("id = ?", c.Param("id")).First(&blog).Error; err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
-	// 	return
-	// }
-
 	urlParam := c.Param("id")
-	intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
-	if err != nil {
-		panic(err)
-	}
+	// intUrlParam, err := strconv.ParseUint(urlParam, 10, 64)
+	intUrlParam := uuid.Must(uuid.Parse(urlParam))
 
 	modelBlog, err := FindOneBlog(&ModelBlog{ID: intUrlParam})
 	if err != nil {
@@ -201,10 +194,8 @@ func DeleteBlog(c *gin.Context) {
 	}
 
 	urlParam := c.Param("id")
-	intUrlParam, err := strconv.Atoi(urlParam)
-	if err != nil {
-		panic(err)
-	}
+	// intUrlParam, err := strconv.Atoi(urlParam)
+	intUrlParam := uuid.Must(uuid.Parse(urlParam))
 
 	if intUrlParam != input.ID {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Delete Not Acceptable, invalid data! "})
